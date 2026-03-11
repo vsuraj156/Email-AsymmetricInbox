@@ -33,7 +33,7 @@ export default function ActionLane({ emails, selectedId, onSelect }: ActionLaneP
   );
 
   return (
-    <div className="w-[420px] flex-shrink-0 flex flex-col overflow-hidden">
+    <div className="w-full flex-shrink-0 flex flex-col overflow-hidden">
       {/* Lane header */}
       <LaneHeader icon="⚡" title="Action" count={emails.length} accent="amber" />
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Email, EmailListResponse } from '@/lib/types';
 import ActionLane from './ActionLane';
 import ReadingLane from './ReadingLane';
@@ -12,6 +12,8 @@ export default function InboxShell() {
   const [readingEmails, setReadingEmails] = useState<Email[]>([]);
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [actionWidth, setActionWidth] = useState(420);
+  const isDragging = useRef(false);
 
   useEffect(() => {
     async function fetchEmails() {
@@ -44,6 +46,29 @@ export default function InboxShell() {
 
   const handleClose = useCallback(() => {
     setSelectedEmail(null);
+  }, []);
+
+  const handleDividerMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isDragging.current = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!isDragging.current) return;
+      setActionWidth(Math.min(Math.max(ev.clientX, 240), 700));
+    };
+
+    const onMouseUp = () => {
+      isDragging.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
   }, []);
 
   if (isLoading) {
@@ -82,12 +107,14 @@ export default function InboxShell() {
 
       {/* Main content */}
       <div className="flex flex-row flex-1 overflow-hidden">
-        <ActionLane
-          emails={actionEmails}
-          selectedId={selectedEmail?.id ?? null}
-          onSelect={handleSelect}
-        />
-        <Divider vertical />
+        <div style={{ width: actionWidth }} className="flex-shrink-0 overflow-hidden flex flex-col">
+          <ActionLane
+            emails={actionEmails}
+            selectedId={selectedEmail?.id ?? null}
+            onSelect={handleSelect}
+          />
+        </div>
+        <Divider vertical onMouseDown={handleDividerMouseDown} />
         <ReadingLane
           emails={readingEmails}
           selectedId={selectedEmail?.id ?? null}
