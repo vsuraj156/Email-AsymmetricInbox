@@ -81,13 +81,13 @@ export default function InboxShell() {
       </header>
 
       {/* Main content */}
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="flex flex-row flex-1 overflow-hidden">
         <ActionLane
           emails={actionEmails}
           selectedId={selectedEmail?.id ?? null}
           onSelect={handleSelect}
         />
-        <Divider />
+        <Divider vertical />
         <ReadingLane
           emails={readingEmails}
           selectedId={selectedEmail?.id ?? null}
